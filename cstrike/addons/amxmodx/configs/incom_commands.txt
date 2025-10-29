@@ -21,6 +21,7 @@ body{background:#000;color:#fff;font-family:'Courier New';margin:10px}
 <br><hr><br>
 <div class=cmds><table>
 <tr><td class=ylw>/skins-menu</td><td class=grn>- Меню выбора скинов</td></tr>
+<tr><td class=ylw>/buy_molotov</td><td class=grn>- Покупка гранаты "Молотов"</td></tr>
 <tr><td class=ylw>/weapons</td><td class=grn>- Меню выбора оружия в TDM</td></tr>
 <tr><td class=ylw>/maps</td><td class=grn>- Номинировать карту на голосование</td></tr>
 <tr><td class=ylw>/rs</td><td class=grn>- Сбросить текущий счет</td></tr>

@@ -8,6 +8,8 @@ public plugin_init() {
 public public_GiveMolotov(id, count, maximum) {
     if (!IsUserHasMolotov(id))
     {
-        GiveUserMolotov(id)
+        return (GiveUserMolotov(id) > 0)
     }
+
+    return 0
 }

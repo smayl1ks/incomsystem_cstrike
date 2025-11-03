@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.0.draft]
 
+- Добавлен скин на ak47 в стиле incomsystem
 - Удален плагин `admin_explode.amxx`
 - Добавлен плагин `ReDeathmatch.amxx`, по умолчанию выключен
 - Добавлены модели игроков с тематическими надписями на груди и спине.

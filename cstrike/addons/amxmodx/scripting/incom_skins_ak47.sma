@@ -1,15 +1,17 @@
 #include <amxmodx>
 #include <cstrike>
 #include <cromchat>
+#include <incom_skins>
 
 new const PLUGIN[]       = "Incomsystem AK47 Menu";
-new const VERSION[]      = "2.0";
+new const VERSION[]      = "2.1";
 new const AUTHOR[]       = "Tonitaga"
 new const SKIN_COMMAND[] = "say /skins-ak47";
 
 new const Models_V[][] =
 {
 	"models/v_ak47.mdl",
+    "models/incom/ak47/incom/v_ak47.mdl",
 	"models/incom/ak47/fire_serpent/v_ak47.mdl",
 	"models/incom/ak47/bloodsport/v_ak47.mdl",
 	"models/incom/ak47/the_empress/v_ak47.mdl",
@@ -21,6 +23,7 @@ new const Models_V[][] =
 new const Models_P[][] =
 {
 	"models/p_ak47.mdl",
+    "models/incom/ak47/incom/p_ak47.mdl",
 	"models/incom/ak47/fire_serpent/p_ak47.mdl",
 	"models/incom/ak47/bloodsport/p_ak47.mdl",
 	"models/incom/ak47/the_empress/p_ak47.mdl",
@@ -32,13 +35,23 @@ new const Models_P[][] =
 new const ModelNames[][] =
 {
     "AK47 [DEFAULT]",
+    "AK47 INCOM",
 	"AK47 Fire Serpent",
 	"AK47 Bloodsport",
 	"AK47 The Empress",
 	"AK47 Fuel Injector",
 	"AK47 Vulcan",
-	"AK47 Elite Build"
+	"AK47 Elite Build",
 };
+
+///> Handle базы данных
+new Handle:g_DbHandle;
+
+///> Название таблицы
+new const TABLE_NAME[] = "ak47";
+
+///> Индекс скина по умолчанию
+new const DEFAULT_SKIN = 1; // "AK47 Fire Serpent"
 
 new SkinStorage[33];
 
@@ -47,11 +60,15 @@ public plugin_init()
 	register_plugin(PLUGIN, VERSION, AUTHOR);
 	register_clcmd(SKIN_COMMAND,"IncomMenu");
 	register_event("CurWeapon", "IncomChangeCurrentWeapon", "be", "1=1");
+	
+	g_DbHandle = IncomSkins_GetHandle();
+
+	IncomSkins_CreateTable(g_DbHandle, TABLE_NAME);
 }
 
-public client_putinserver(id)
+public plugin_end()
 {
-	SkinStorage[id] = 1; // "AK47 Fire Serpent"
+	SQL_FreeHandle(g_DbHandle);
 }
 
 public plugin_precache() 
@@ -67,17 +84,34 @@ public plugin_precache()
 	}
 }
 
+public client_putinserver(id)
+{
+	if(is_user_bot(id) || !is_user_connected(id))
+		return;
+
+	IncomSkins_LoadUserSkin(g_DbHandle, TABLE_NAME, id, "LoadUserSkinHandle");
+}
+
+public client_disconnected(id)
+{
+	if(is_user_bot(id))
+		return;
+
+	IncomSkins_SaveUserSkin(g_DbHandle, TABLE_NAME, id, SkinStorage[id]);
+}
+
 public IncomMenu(id)
 {
 	new menu = menu_create("\y>>>>> \rAK47 skin selection menu \y<<<<<^n \dby >>\rTonitaga\d<<", "IncomCase")
 	
 	menu_additem(menu, "AK47 \r[DEFAULT]^n",     "1", 0)
-	menu_additem(menu, "\yAK47 \wFire Serpent",  "2", 0)
-	menu_additem(menu, "\yAK47 \wBloodsport",    "3", 0)
-	menu_additem(menu, "\yAK47 \wThe Empress",   "4", 0)
-	menu_additem(menu, "\yAK47 \wFuel Injector", "5", 0)
-	menu_additem(menu, "\yAK47 \wVulcan",        "6", 0)
-	menu_additem(menu, "\yAK47 \wElite Build",   "7", 0)
+    menu_additem(menu, "\yAK47 \wIncom",   "2", 0)
+	menu_additem(menu, "\yAK47 \wFire Serpent",  "3", 0)
+	menu_additem(menu, "\yAK47 \wBloodsport",    "4", 0)
+	menu_additem(menu, "\yAK47 \wThe Empress",   "5", 0)
+	menu_additem(menu, "\yAK47 \wFuel Injector", "6", 0)
+	menu_additem(menu, "\yAK47 \wVulcan",        "7", 0)
+	menu_additem(menu, "\yAK47 \wElite Build",   "8", 0)
 
 	menu_setprop(menu, MPROP_EXIT, MEXIT_ALL);
 	menu_display(id, menu, 0);
@@ -97,6 +131,8 @@ public IncomCase(id, menu, item)
 
 	SkinStorage[id] = item;
 	CC_SendMessage(id, "&x03%s &x01You Chouse &x04%s&x01", nick, ModelNames[item]);
+
+	IncomSkins_SaveUserSkin(g_DbHandle, TABLE_NAME, id, SkinStorage[id]);
 	
 	menu_destroy(menu);
 	return 1;
@@ -108,5 +144,34 @@ public IncomChangeCurrentWeapon(id)
 	{
 		set_pev(id, pev_viewmodel2,   Models_V[SkinStorage[id]]);
 		set_pev(id, pev_weaponmodel2, Models_P[SkinStorage[id]]);
+	}
+}
+
+public LoadUserSkinHandle(failstate, Handle:query, error[], errcode, data[], size)
+{
+	if(failstate != TQUERY_SUCCESS)
+	{
+		log_amx("incom_skins_ak47 error: %s", error);
+		return;
+	}
+	
+	new id = data[0];
+	
+	if(!is_user_connected(id))
+		return;
+	
+	if(SQL_NumRows(query) > 0)
+	{
+		SkinStorage[id] = SQL_ReadResult(query, 0);
+		
+		if(SkinStorage[id] < 0 || SkinStorage[id] >= sizeof Models_V)
+		{
+			SkinStorage[id] = DEFAULT_SKIN;
+		}
+	}
+	else
+	{
+		SkinStorage[id] = DEFAULT_SKIN;
+		IncomSkins_SaveUserSkin(g_DbHandle, TABLE_NAME, id, SkinStorage[id]);
 	}
 }

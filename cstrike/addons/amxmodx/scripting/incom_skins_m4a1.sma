@@ -11,6 +11,7 @@ new const SKIN_COMMAND[] = "say /skins-m4a1";
 new const Models_V[][] =
 {
 	"models/v_m4a1.mdl",
+    "models/incom/m4a1/incom/v_m4a1.mdl",
 	"models/incom/m4a1/desolate_space/v_m4a1.mdl",
 	"models/incom/m4a1/asiimov/v_m4a1.mdl",
 	"models/incom/m4a1/chanticos_fire/v_m4a1.mdl",
@@ -22,6 +23,7 @@ new const Models_V[][] =
 new const Models_P[][] =
 {
 	"models/p_m4a1.mdl",
+    "models/incom/m4a1/incom/p_m4a1.mdl",
 	"models/incom/m4a1/desolate_space/p_m4a1.mdl",
 	"models/incom/m4a1/asiimov/p_m4a1.mdl",
 	"models/incom/m4a1/chanticos_fire/p_m4a1.mdl",
@@ -102,12 +104,13 @@ public IncomMenu(id)
 	new menu = menu_create("\y>>>>> \rM4A1 skin selection menu \y<<<<<^n \dby >>\rTonitaga\d<<", "IncomCase")
 	
 	menu_additem(menu, "M4A1 \r[DEFAULT]^n",      "1", 0)
-	menu_additem(menu, "\yM4A1 \wDesolate Space", "2", 0)
-	menu_additem(menu, "\yM4A1 \wAsiimov",        "3", 0)
-	menu_additem(menu, "\yM4A1 \wChanticos Fire", "4", 0)
-	menu_additem(menu, "\yM4A1 \wDragon King",    "5", 0)
-	menu_additem(menu, "\yM4A1 \wGolden Coil",    "6", 0)
-	menu_additem(menu, "\yM4A1 \wHyper Beast",    "7", 0)
+    menu_additem(menu, "\yM4A1 \wIncom",      "2", 0)
+	menu_additem(menu, "\yM4A1 \wDesolate Space", "3", 0)
+	menu_additem(menu, "\yM4A1 \wAsiimov",        "4", 0)
+	menu_additem(menu, "\yM4A1 \wChanticos Fire", "5", 0)
+	menu_additem(menu, "\yM4A1 \wDragon King",    "6", 0)
+	menu_additem(menu, "\yM4A1 \wGolden Coil",    "7", 0)
+	menu_additem(menu, "\yM4A1 \wHyper Beast",    "8", 0)
 
 	menu_setprop(menu, MPROP_EXIT, MEXIT_ALL);
 	menu_display(id, menu, 0);

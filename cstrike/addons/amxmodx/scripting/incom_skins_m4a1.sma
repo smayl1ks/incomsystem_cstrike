@@ -23,7 +23,7 @@ new const Models_V[][] =
 new const Models_P[][] =
 {
 	"models/p_m4a1.mdl",
-    "models/incom/m4a1/incom/p_m4a1.mdl",
+	"models/incom/m4a1/incom/p_m4a1.mdl",
 	"models/incom/m4a1/desolate_space/p_m4a1.mdl",
 	"models/incom/m4a1/asiimov/p_m4a1.mdl",
 	"models/incom/m4a1/chanticos_fire/p_m4a1.mdl",
@@ -35,6 +35,7 @@ new const Models_P[][] =
 new const ModelNames[][] =
 {
     "M4A1 [DEFAULT]",
+    "M4A1 INCOM",
     "M4A1 Desolate Space",
 	"M4A1 Asiimov",
 	"M4A1 Chanticos Fire",

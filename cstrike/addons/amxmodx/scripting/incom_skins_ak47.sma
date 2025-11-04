@@ -35,13 +35,13 @@ new const Models_P[][] =
 new const ModelNames[][] =
 {
     "AK47 [DEFAULT]",
+    "AK47 INCOM",
 	"AK47 Fire Serpent",
 	"AK47 Bloodsport",
 	"AK47 The Empress",
 	"AK47 Fuel Injector",
 	"AK47 Vulcan",
 	"AK47 Elite Build",
-    "AK47 INCOM"
 };
 
 ///> Handle базы данных

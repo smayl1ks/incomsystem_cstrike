@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлена система сохранения выбранного скина на оружие в базу данных `sqlite`
 - Добавлена возможность отключать музыку в конце раунда в плагине `incom_music.amxx`
 - Теперь "Молотов" наносит урон только противникам и тому, кто его бросил
+- Убрана модель `Deagle Bloodsport` из CS2. Добавлена стандартная CS1.6 `Deagle Oxide Blaze`
 
 ## [0.4.0]
 

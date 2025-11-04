@@ -12,21 +12,21 @@ new const Models_V[][] =
 {
 	"models/v_deagle.mdl",
 	"models/incom/deagle/blaze/v_deagle.mdl",
-	"models/incom/deagle/bloodsport/v_deagle.mdl"
+	"models/incom/deagle/oxide_blaze/v_deagle.mdl"
 };
 
 new const Models_P[][] =
 {
 	"models/p_deagle.mdl",
 	"models/incom/deagle/blaze/p_deagle.mdl",
-	"models/incom/deagle/bloodsport/p_deagle.mdl"
+	"models/incom/deagle/oxide_blaze/p_deagle.mdl"
 };
 
 new const ModelNames[][] =
 {
     "Deagle [DEFAULT]",
 	"Deagle Blaze",
-	"Deagle Bloodsport",
+	"Deagle Oxide Blaze",
 };
 
 ///> Handle базы данных
@@ -89,9 +89,9 @@ public IncomMenu(id)
 {
 	new menu = menu_create("\y>>>>> \rDeagle skin selection menu \y<<<<<^n \dby >>\rTonitaga\d<<", "IncomCase")
 	
-	menu_additem(menu, "Deagle \r[DEFAULT]^n",  "1", 0)
-	menu_additem(menu, "\yDeagle \wBlaze",      "2", 0)
-	menu_additem(menu, "\yDeagle \wBloodsport", "3", 0)
+	menu_additem(menu, "Deagle \r[DEFAULT]^n",   "1", 0)
+	menu_additem(menu, "\yDeagle \wBlaze",       "2", 0)
+	menu_additem(menu, "\yDeagle \wOxide Blaze", "3", 0)
 
 	menu_setprop(menu, MPROP_EXIT, MEXIT_ALL);
 	menu_display(id, menu, 0);

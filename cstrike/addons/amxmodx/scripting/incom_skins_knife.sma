@@ -15,8 +15,7 @@ new const Models_V[][] =
 	// Ножи Karambit
 	"models/incom/knife/karambit/lore/v_knife.mdl",
 	"models/incom/knife/karambit/doppler_emerald/v_knife.mdl",
-	"models/incom/knife/karambit/ultraviolet/v_knife.mdl",
-	"models/incom/knife/karambit/gradient/v_knife.mdl",
+	"models/incom/knife/karambit/fade/v_knife.mdl",
 
 	// Ножи Butterfly
 	"models/incom/knife/butterfly/fade/v_knife.mdl",
@@ -25,9 +24,6 @@ new const Models_V[][] =
 	// Ножи Bayonet
 	"models/incom/knife/bayonet/lore/v_knife.mdl",
 	"models/incom/knife/bayonet/chang_specialist/v_knife.mdl",
-
-	// Ножи Flip
-	"models/incom/knife/flip/ultraviolet/v_knife.mdl",
 
 	// Ножи Skeleton
 	"models/incom/knife/skeleton/fade/v_knife.mdl",
@@ -42,8 +38,7 @@ new const ModelNames[][] =
 	// Ножи Karambit
 	"Knife Karambit Lore",
 	"Knife Karambit Doppler Emerald",
-	"Knife Karambit Ultraviolet",
-	"Knife Karambit Gradient",
+	"Knife Karambit Fade",
 
 	// Ножи Butterfly
 	"Knife Butterfly Fade",
@@ -52,9 +47,6 @@ new const ModelNames[][] =
 	// Ножи Bayonet
 	"Knife Bayonet Lore",
 	"Knife Bayonet Chang Specialist",
-
-	// Ножи Flip
-	"Knife Flip Ultraviolet",
 
 	// Ножи Skeleton
 	"Knife Skeleton Fade",
@@ -122,8 +114,7 @@ public IncomMenu(id)
 	// Ножи Karambit
 	menu_additem(menu, "\yKnife \wKarambit Lore",            "2", 0)
 	menu_additem(menu, "\yKnife \wKarambit Doppler Emerald", "3", 0)
-	menu_additem(menu, "\yKnife \wKarambit Ultraviolet",     "4", 0)
-	menu_additem(menu, "\yKnife \wKarambit Gradient",        "5", 0)
+	menu_additem(menu, "\yKnife \wKarambit Fade",            "4", 0)
 
 	// Ножи Butterfly
 	menu_additem(menu, "\yKnife \wButterfly Fade",        "100", 0)
@@ -133,13 +124,10 @@ public IncomMenu(id)
 	menu_additem(menu, "\yKnife \wBayonet Lore",             "200", 0)
 	menu_additem(menu, "\yKnife \wBayonet Chang Specialist", "201", 0)
 
-	// Ножи Flip
-	menu_additem(menu, "\yKnife \wFlip Ultraviolet", "300", 0)
-
 	// Ножи Skeleton
-	menu_additem(menu, "\yKnife \wSkeleton Fade",          "400", 0)
-	menu_additem(menu, "\yKnife \wSkeleton Crimson Web",   "401", 0)
-	menu_additem(menu, "\yKnife \wSkeleton Case Hardened", "402", 0)
+	menu_additem(menu, "\yKnife \wSkeleton Fade",          "300", 0)
+	menu_additem(menu, "\yKnife \wSkeleton Crimson Web",   "301", 0)
+	menu_additem(menu, "\yKnife \wSkeleton Case Hardened", "302", 0)
 
 	menu_setprop(menu, MPROP_EXIT, MEXIT_ALL);
 	menu_display(id, menu, 0);

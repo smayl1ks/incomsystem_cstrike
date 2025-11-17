@@ -122,11 +122,11 @@ public round_end()
         new type = get_pcvar_num(g_Type)
         if (type == MUSIC_TYPE_DEFAULT)
         {
-            set_task(0.5, "PlayCommonSound")
+            PlayCommonSound();
         }
         else if (type == MUSIC_TYPE_XMAS)
         {
-            set_task(0.5, "PlayXMasSound")
+            PlayXMasSound();
         }
     }
 }

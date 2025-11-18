@@ -267,20 +267,19 @@ public SetSongRequestedData(data[])
 
     if (value)
     {
-        data[0] = false;
-
         g_SongRequestCounter = get_pcvar_num(g_RequestTimeout);
-        set_task(1.0, "PollSongRequest", g_SondRequestTaskId, data, 1, .flags="b");
+        set_task(1.0, "PollSongRequest", g_SondRequestTaskId, .flags="b");
         return;
     }
 }
 
-public PollSongRequest(data[])
+public PollSongRequest()
 {
     --g_SongRequestCounter;
     if (g_SongRequestCounter <= 0)
     {
-        SetSongRequestedData(data)
+        IncomPrint_Client(0, "[%L] %L", 0, "NAME", 0, "SOUND_AVAILABLE");
+        SetSongRequested(false);
         return;
     }
 }

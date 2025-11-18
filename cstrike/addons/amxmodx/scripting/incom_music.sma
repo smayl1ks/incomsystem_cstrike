@@ -143,11 +143,11 @@ public client_connect(playerId)
         new type = get_pcvar_num(g_Type)
         if (type == MUSIC_TYPE_DEFAULT)
         {
-            PlaySound(SOUND_OFFSET_GREETING + 0);
+            PlaySound(playerId, SOUND_OFFSET_GREETING + 0);
         }
         else if (type == MUSIC_TYPE_XMAS)
         {
-            PlaySound(SOUND_OFFSET_GREETING + 1);
+            PlaySound(playerId, SOUND_OFFSET_GREETING + 1);
         }
     }
 }
@@ -165,7 +165,7 @@ public round_end()
     if (get_pcvar_num(g_Enable))
     {
         client_cmd(0, "stopsound")
-        Wrapper_SetSongRequested(false);
+        SetSongRequested(false);
 
         new type = get_pcvar_num(g_Type)
         if (type == MUSIC_TYPE_DEFAULT)
@@ -182,21 +182,21 @@ public round_end()
 public PlayCommonSound()
 {
     new rand = random_num(0,8)
-    PlaySound(SOUND_OFFSET_DEFAULT + rand);
+    PlaySound(0, SOUND_OFFSET_DEFAULT + rand);
 }
 
 public PlayXMasSound()
 {
     new rand = random_num(0,7)
-    PlaySound(SOUND_OFFSET_XMAS + rand);
+    PlaySound(0, SOUND_OFFSET_XMAS + rand);
 }
 
-public PlaySound(soundId)
+public PlaySound(playerId, soundId)
 {
     new sound[64];
     formatex(sound, charsmax(sound), "spk %s", g_Sounds[soundId]);
 
-    client_cmd(0, sound);
+    client_cmd(playerId, sound);
 }
 
 public StopSound(playerId)
@@ -204,7 +204,7 @@ public StopSound(playerId)
     if (get_user_flags(playerId) & ADMIN_FLAG)
     {
         client_cmd(0, "stopsound")
-        Wrapper_SetSongRequested(false);
+        SetSongRequested(false);
     }
 }
 
@@ -213,15 +213,16 @@ stock IsSongAlreadyRequested()
     return g_SongRequested;
 }
 
-stock Wrapper_SetSongRequested(value)
+
+stock SetSongRequested(value)
 {
     new data[1];
 
     data[0] = value;
-    SetSongRequested(data);
+    SetSongRequestedData(data);
 }
 
-public SetSongRequested(data[])
+public SetSongRequestedData(data[])
 {
     new value = data[0];
     if (value == g_SongRequested)
@@ -238,11 +239,9 @@ public SetSongRequested(data[])
     if (value)
     {
         data[0] = false;
-        set_task(90.0, "SetSongRequested", g_SondRequestTaskId, data, 1);
+        set_task(90.0, "SetSongRequestedData", g_SondRequestTaskId, data, 2);
         return;
     }
-
-    CC_SendMessage(0, "[&x07Incomsystem music&x01] Song request &x04available&x01. Try &x07/anew&x01!");
 }
 
 public pointBonus_RequestSong(playerId)
@@ -250,7 +249,7 @@ public pointBonus_RequestSong(playerId)
     if (!IsSongAlreadyRequested())
     {
         ShowMusicRequestMenu(playerId);
-        Wrapper_SetSongRequested(true);
+        SetSongRequested(true);
         return true;
     }
 
@@ -299,7 +298,8 @@ public MenuCase(playerId, menu, item)
 		return PLUGIN_HANDLED;
 	}
 
-	Wrapper_SetSongRequested(true); ///> Админовская команда, проверять на наличие выставленного флага не будем
+	///> Админовская команда, проверять на наличие выставленного флага не будем
+	SetSongRequested(true);
 	return CommonMenuCase(playerId, menu, item);
 }
 
@@ -323,7 +323,7 @@ public RequestMenuCase(playerId, menu, item)
     if(item == MENU_EXIT)
     {
     	menu_destroy(menu);
-        Wrapper_SetSongRequested(false);
+        SetSongRequested(false);
     	return PLUGIN_HANDLED;
     }
 
@@ -339,7 +339,7 @@ public CommonMenuCase(playerId, menu, item)
 	new soundId = str_to_num(data)
 
 	client_cmd(0, "stopsound")
-	PlaySound(soundId);
+	PlaySound(0, soundId);
 
 	get_user_name(playerId, name, charsmax(name));
 

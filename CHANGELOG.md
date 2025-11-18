@@ -14,10 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Убрана задержка перед началом песни, так как появилось мягкое начало
     - Добавлена песни `Let It Snow!`, `Rockin’ Around the Christmas Tree`, `Last Christmas`
     - Теперь можно заказывать песни через бонусное меню `/anew`. Заказ доступен после завершения раунда или через `90 секунд` после предыдущего выбора.
+    - Добавлены песни `Code & Counter-Strike`, `Lunch Pizza`
+    - Добавлена возможность регулировать таймаутом между двумя заказами песен `amx_incom_music_request_timeout`
+    - Добавлен словарь фраз с поддержкой английского и русского языка `incom_music.txt`
+    - Добавлен `incom_print.inc` с удобной функцией печати в чат клиентам
 - Обновления плагина `incom_respawn.amxx` (`1.4.0` -> `1.5.0`)
     - Добавлен cvar `amx_incom_respawn_random_weapons_enable`. Включает режим TeamDM со случайным оружием
     - Для работы нового `cvar` необоходимо, чтобы TeamDM был включен: `amx_incom_respawn_enable 1`
     - Добавлен новый сет оружия `Random` в меню `/weapons`
+    - Добавлен словарь фраз с поддержкой английского и русского языка `incom_respawn.txt`
+    - Добавлено испольвание в плагин `incom_print.inc`
 
 ## [0.6.0]
 

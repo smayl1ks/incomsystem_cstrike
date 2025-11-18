@@ -5,8 +5,8 @@
 #include <fakemeta>
 #include <engine>
 #include <fun>
-#include <cromchat>
 #include <parse_color>
+#include <incom_print>
 #include <reapi>
 
 #define PLUGIN  "Incomsystem Respawn"
@@ -82,6 +82,8 @@ public plugin_init()
 
 	RegisterHam(Ham_TakeDamage, "player", "OnPlayerTakeDamage");
 	RegisterHam(Ham_Spawn, "player", "OnPlayerSpawn");
+
+	register_dictionary("incom_respawn.txt");
 }
 
 public plugin_cfg()
@@ -129,7 +131,7 @@ public OnRespawnEnabledChanged(cvar, const old_value[], const new_value[])
         set_cvar_float("amx_incom_weapons_delete_time", 5.0);
         set_cvar_float("amx_incom_respawn_time", 1.0);
 
-        CC_SendMessage(0, "INCOMSYSTEM [&x07DEV ZONE&x01]&x01 &x04Enabled&x01 Team&x07DM&x01");
+        IncomPrint_Client(0, "[%L] %L", 0, "NAME", 0, "TEAM_DM_ENABLE");
         server_cmd("sv_restart 1");
     }
     else if (oldVal == 1 && newVal == 0)
@@ -156,7 +158,7 @@ public OnRespawnEnabledChanged(cvar, const old_value[], const new_value[])
             }
         }
 
-        CC_SendMessage(0, "INCOMSYSTEM [&x07DEV ZONE&x01]&x01 &x04Disabled&x01 Team&x07DM&x01");
+        IncomPrint_Client(0, "[%L] %L", 0, "NAME", 0, "TEAM_DM_DISABLE");
         server_cmd("sv_restart 1");
     }
 }
@@ -175,11 +177,11 @@ public OnRandomWeaponsEnabledChanged(cvar, const old_value[], const new_value[])
 
 		if (oldVal == 0 && newVal == 1)
 		{
-			CC_SendMessage(0, "INCOMSYSTEM [&x07DEV ZONE&x01]&x01 &x04Enabled&x01 Random &x07Weapons&x01");
+			IncomPrint_Client(0, "[%L] %L", 0, "NAME", 0, "RANDOM_WEAPONS_ENABLE");
 		}
 		else if (oldVal == 1 && newVal == 0)
 		{
-			CC_SendMessage(0, "INCOMSYSTEM [&x07DEV ZONE&x01]&x01 &x04Disabled&x01 Random &x07Weapons&x01");
+			IncomPrint_Client(0, "[%L] %L", 0, "NAME", 0, "RANDOM_WEAPONS_DISABLE");
 		}
 
 		GiveWeaponsToAllPlayers();
@@ -190,7 +192,7 @@ public NotifyAboutWeaponSelect()
 {
 	if (get_pcvar_num(g_RespawnEnabled) && get_pcvar_num(g_WeaponsChooseEnabled) && !get_pcvar_num(g_RandomWeaponsEnabled))
 	{
-		CC_SendMessage(0, "INCOMSYSTEM [&x07DEV ZONE&x01]&x01 say &x04%s&x01 для выбора оружия", WEAPONS_COMMAND);
+		IncomPrint_Client(0, "[%L] %L", 0, "NAME", 0, "WEAPONS_NOTIFY");
 	}
 }
 
@@ -253,7 +255,7 @@ public OnPlayerSpawn(playerId)
 {
 	if (get_pcvar_num(g_RespawnEnabled) && is_user_alive(playerId))
 	{
-		if (!get_pcvar_num(g_RandomWeaponsEnabled))
+		if (!get_pcvar_num(g_RandomWeaponsEnabled) && !g_SelectedWeaponsStorage[playerId] == RANDOM_SET)
 		{
 			GiveWeapons(playerId);
 		}

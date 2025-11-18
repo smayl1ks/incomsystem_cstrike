@@ -1,21 +1,24 @@
 #include <amxmodx>
-#include <cromchat>
+#include <incom_print>
 
 #define PLUGIN  "Incomsystem music"
-#define VERSION "3.1"
+#define VERSION "3.2"
 #define AUTHOR  "Tonitaga"
 
-#define KEY_ENABLE "amx_incom_music_enable"
-#define KEY_TYPE   "amx_incom_music_type"
+#define KEY_ENABLE          "amx_incom_music_enable"
+#define KEY_TYPE            "amx_incom_music_type"
+#define KEY_REQUEST_TIMEOUT "amx_incom_music_request_timeout"
 
-#define DEFAULT_ENABLE "1"
-#define DEFAULT_TYPE   "1"
+#define DEFAULT_ENABLE          "1"
+#define DEFAULT_TYPE            "1"
+#define DEFAULT_REQUEST_TIMEOUT "90"
 
 new const MUSIC_TYPE_DEFAULT = 1
 new const MUSIC_TYPE_XMAS    = 2
 
 new g_Enable;
 new g_Type;
+new g_RequestTimeout;
 
 #define ADMIN_FLAG ADMIN_IMMUNITY
 
@@ -25,12 +28,17 @@ new g_Type;
 #define MUSIC_STOP_COMMAND_SAY_TEAM "say_team /stop_music"
 
 new g_SongRequested = false;
-new const g_SondRequestTaskId = 14839;
+new g_SongRequestCounter = 0;
+
+new const g_SondRequestTaskId = 20000;
+new const g_MenuDestroyTaskId = 20500;
 
 new const g_Sounds[][] =
 {
     ///> Greeting sounds
     "incom/greeting",
+    "incom/greeting_lunch_pizza",
+    "incom/greeting_code_and_cs",
 
     ///> Greeting sounds [XMas]
     "incom/greeting_xmas",
@@ -66,6 +74,8 @@ new const g_SoundsNames[][] =
 {
     ///> Greeting sounds
     "Incom Greeting",
+    "Lunch Pizza",
+    "Code & Counter-Strike",
 
     ///> Greeting sounds [XMas]
     "Incom XMas Greeting",
@@ -96,9 +106,9 @@ new const g_SoundsNames[][] =
 };
 
 #define SOUND_OFFSET_GREETING      0  // g_Sounds[0]
-#define SOUND_OFFSET_GREETING_XMAS 1  // g_Sounds[0]
-#define SOUND_OFFSET_DEFAULT       5  // g_Sounds[5]
-#define SOUND_OFFSET_XMAS          14 // g_Sounds[14]
+#define SOUND_OFFSET_GREETING_XMAS 3  // g_Sounds[3]
+#define SOUND_OFFSET_DEFAULT       7  // g_Sounds[7]
+#define SOUND_OFFSET_XMAS          16 // g_Sounds[16]
 
 public plugin_init() 
 { 
@@ -112,12 +122,15 @@ public plugin_init()
     register_clcmd(MUSIC_COMMAND_SAY_TEAM, "ShowMusicMenu")
     register_clcmd(MUSIC_STOP_COMMAND_SAY, "StopSound")
     register_clcmd(MUSIC_STOP_COMMAND_SAY_TEAM, "StopSound")
+
+    register_dictionary("incom_music.txt")
 }
 
 public plugin_cfg()
 {
-	g_Enable = create_cvar(KEY_ENABLE, DEFAULT_ENABLE, _, "Статус плагина^n0 - Отключен^n1 - Включен", true, 0.0, true, 1.0);
-	g_Type   = create_cvar(KEY_TYPE, DEFAULT_TYPE, _, "Тип музыки^n1 - Incomsystem [Default]^n2 - Incomsystem [XMas]", true, 1.0, true, 2.0);
+	g_Enable         = create_cvar(KEY_ENABLE, DEFAULT_ENABLE, _, "Статус плагина^n0 - Отключен^n1 - Включен", true, 0.0, true, 1.0);
+	g_Type           = create_cvar(KEY_TYPE, DEFAULT_TYPE, _, "Тип музыки^n1 - Incomsystem [Default]^n2 - Incomsystem [XMas]", true, 1.0, true, 2.0);
+	g_RequestTimeout = create_cvar(KEY_REQUEST_TIMEOUT, DEFAULT_REQUEST_TIMEOUT, _, "Максимальное время ожидания между двумя заказами песен", true, 30.0, true, 180.0);
 
 	AutoExecConfig(true, "incom_music");
 }
@@ -165,7 +178,12 @@ public round_end()
     if (get_pcvar_num(g_Enable))
     {
         client_cmd(0, "stopsound")
-        SetSongRequested(false);
+
+        if (IsSongAlreadyRequested())
+        {
+            SetSongRequested(false);
+            IncomPrint_Client(0, "[%L] %L", 0, "NAME", 0, "SOUND_AVAILABLE");
+        }
 
         new type = get_pcvar_num(g_Type)
         if (type == MUSIC_TYPE_DEFAULT)
@@ -204,7 +222,23 @@ public StopSound(playerId)
     if (get_user_flags(playerId) & ADMIN_FLAG)
     {
         client_cmd(0, "stopsound")
+
+        if (!IsSongAlreadyRequested())
+        {
+            return;
+        }
+
         SetSongRequested(false);
+
+        new name[128];
+        get_user_name(playerId, name, charsmax(name));
+
+        IncomPrint_Client(0, "[%L] %L", playerId, "NAME", playerId, "ADMIN_STOP_SOUND", name);
+    }
+    else
+    {
+        client_cmd(playerId, "stopsound")
+        IncomPrint_Client(0, "[%L] %L", playerId, "NAME", playerId, "PLAYER_STOP_SOUND");
     }
 }
 
@@ -212,7 +246,6 @@ stock IsSongAlreadyRequested()
 {
     return g_SongRequested;
 }
-
 
 stock SetSongRequested(value)
 {
@@ -225,10 +258,6 @@ stock SetSongRequested(value)
 public SetSongRequestedData(data[])
 {
     new value = data[0];
-    if (value == g_SongRequested)
-    {
-        return;
-    }
 
     g_SongRequested = value;
     if (task_exists(g_SondRequestTaskId))
@@ -239,7 +268,19 @@ public SetSongRequestedData(data[])
     if (value)
     {
         data[0] = false;
-        set_task(90.0, "SetSongRequestedData", g_SondRequestTaskId, data, 2);
+
+        g_SongRequestCounter = get_pcvar_num(g_RequestTimeout);
+        set_task(1.0, "PollSongRequest", g_SondRequestTaskId, data, 1, .flags="b");
+        return;
+    }
+}
+
+public PollSongRequest(data[])
+{
+    --g_SongRequestCounter;
+    if (g_SongRequestCounter <= 0)
+    {
+        SetSongRequestedData(data)
         return;
     }
 }
@@ -248,13 +289,35 @@ public pointBonus_RequestSong(playerId)
 {
     if (!IsSongAlreadyRequested())
     {
-        ShowMusicRequestMenu(playerId);
         SetSongRequested(true);
+        ShowMusicRequestMenu(playerId);
         return true;
     }
 
-    CC_SendMessage(playerId, "[&x07Incomsystem music&x01] Song &x04already&x01 requested. Try again &x07later&x01!");
+    IncomPrint_Client(playerId, "[%L] %L", playerId, "NAME", playerId, "SOUND_NOT_AVAILABLE", g_SongRequestCounter);
     return false;
+}
+
+stock MakeInactiveMenuCanceler(playerId, Float:timeout)
+{
+    set_task(timeout, "InactiveMenuCanceler", g_MenuDestroyTaskId + playerId)
+}
+
+stock RemoveInvactiveMenuCanceler(playerId)
+{
+    remove_task(g_MenuDestroyTaskId + playerId);
+}
+
+public InactiveMenuCanceler(taskId)
+{
+    new playerId = taskId - g_MenuDestroyTaskId;
+
+    menu_cancel(playerId);
+    show_menu(playerId, 0, "^n", 1);
+
+    SetSongRequested(false);
+
+    IncomPrint_Client(0, "[%L] %L", playerId, "NAME", playerId, "SOUND_AVAILABLE");
 }
 
 public ShowMenu(playerId, soundIndexLhs, soundIndexRhs, const callback[])
@@ -280,6 +343,8 @@ public ShowMenu(playerId, soundIndexLhs, soundIndexRhs, const callback[])
     
     menu_setprop(menu, MPROP_EXIT, MEXIT_ALL)
     menu_display(playerId, menu, 0)
+
+    MakeInactiveMenuCanceler(playerId, 10.0);
 }
 
 public ShowMusicMenu(playerId)
@@ -292,6 +357,8 @@ public ShowMusicMenu(playerId)
 
 public MenuCase(playerId, menu, item)
 {
+	RemoveInvactiveMenuCanceler(playerId);
+	
 	if(item == MENU_EXIT)
 	{
 		menu_destroy(menu);
@@ -320,6 +387,8 @@ public ShowMusicRequestMenu(playerId)
 
 public RequestMenuCase(playerId, menu, item)
 {
+    RemoveInvactiveMenuCanceler(playerId);
+
     if(item == MENU_EXIT)
     {
     	menu_destroy(menu);
@@ -343,15 +412,7 @@ public CommonMenuCase(playerId, menu, item)
 
 	get_user_name(playerId, name, charsmax(name));
 
-	if (equal(g_SoundsNames[soundId], ""))
-	{
-	    CC_SendMessage(0, "[&x07Incomsystem music&x01] &x04%s&x01 requested song &x07#%d&x01", name, soundId);
-	}
-	else
-	{
-	    CC_SendMessage(0, "[&x07Incomsystem music&x01] &x04%s&x01 requested song &x07%s&x01", name, g_SoundsNames[soundId]);
-	}
-
+	IncomPrint_Client(0, "[%L] %L", playerId, "NAME", playerId, "SOUND_REQUESTED", name, g_SoundsNames[soundId]);
 	menu_destroy(menu)
 	return PLUGIN_HANDLED
 }

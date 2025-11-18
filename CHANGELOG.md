@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Обновления плагина `incom_respawn.amxx` (`1.4.0` -> `1.5.0`)
     - Добавлен cvar `amx_incom_respawn_random_weapons_enable`. Включает режим TeamDM со случайным оружием
     - Для работы нового `cvar` необоходимо, чтобы TeamDM был включен: `amx_incom_respawn_enable 1`
+    - Добавлен новый сет оружия `Random` в меню `/weapons`
 
 ## [0.6.0]
 

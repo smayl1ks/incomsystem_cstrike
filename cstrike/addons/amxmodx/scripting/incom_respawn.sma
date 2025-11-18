@@ -31,6 +31,16 @@
 #define AK47_DEAGLE_SET 1
 #define M4A1_DEAGLE_SET 2
 #define AWP_DEAGLE_SET  3
+#define RANDOM_SET      4
+
+new const SET_STRINGS[][] =
+{
+	"0", // UNDEFINED_SET
+	"1", // AK47_DEAGLE_SET
+	"2", // M4A1_DEAGLE_SET
+	"3", // AWP_DEAGLE_SET
+	"4"  // RANDOM_SET
+};
 
 ///> Количество патронов
 new const AMMO_COUNT = 210
@@ -375,10 +385,11 @@ public ShowWeaponsMenu(playerId)
 	if (get_pcvar_num(g_RespawnEnabled) && !get_pcvar_num(g_RandomWeaponsEnabled))
 	{
 		new menu = menu_create("\y>>>>> \rWeapon selection menu \y<<<<<^n \dby >>\rTonitaga\d<<", "WeaponCase")
-		
-		menu_additem(menu, "\yAK47 & Deagle", "1", 0);
-		menu_additem(menu, "\yM4A1 & Deagle", "2", 0);
-		menu_additem(menu, "\yAWP  & Deagle", "3", 0);
+
+		menu_additem(menu, "\yAK47 & Deagle", SET_STRINGS[AK47_DEAGLE_SET], 0);
+		menu_additem(menu, "\yM4A1 & Deagle", SET_STRINGS[M4A1_DEAGLE_SET], 0);
+		menu_additem(menu, "\yAWP  & Deagle", SET_STRINGS[AWP_DEAGLE_SET], 0);
+		menu_additem(menu, "\yRandom",        SET_STRINGS[RANDOM_SET], 0);
 		
 		menu_setprop(menu, MPROP_EXIT, MEXIT_ALL);
 		menu_display(playerId, menu, 0);
@@ -416,13 +427,14 @@ stock GiveWeapons(playerId)
 		SetDefaultWeapons(playerId);
 	}
 
-	if (get_pcvar_num(g_RandomWeaponsEnabled))
+	new selectedType = g_SelectedWeaponsStorage[playerId];
+	if (get_pcvar_num(g_RandomWeaponsEnabled) || selectedType == RANDOM_SET)
 	{
 		GiveRandomWeapons(playerId);
 		return PLUGIN_HANDLED;
 	}
 
-	switch (g_SelectedWeaponsStorage[playerId])
+	switch (selectedType)
 	{
 		case AK47_DEAGLE_SET:
 		{

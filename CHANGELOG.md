@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Добавлен новый сет оружия `Random` в меню `/weapons`
     - Добавлен словарь фраз с поддержкой английского и русского языка `incom_respawn.txt`
     - Добавлено испольвание в плагин `incom_print.inc`
+- Добавление контрибьютеру `smayl1ks` админских прав на сервере.
+- Добавление в motd.txt раздела с контрибьютерами
 
 ## [0.6.0]
 

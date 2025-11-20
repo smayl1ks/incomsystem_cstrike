@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - В сборке, начиная с `0.4.0` есть модульный менеджер карт `map_manager*.amxx`
 - Добавлено отключение плагина `f_ultimate_sounds.amxx`
 - Добавлен плагин `incom_reset_score.amxx`. Старый `resetscore.amxx` удален
+- Изменение скина в плагине `incom_skins_knife.amxx`
+    - Скин `Karambit Doppler Emerald` был заменен на другую фазу
 
 ## [0.6.0]
 

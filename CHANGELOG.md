@@ -32,6 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Формат сгенерированного файла теперь такой: `plugin-plugin_name.cfg`
 - Добавлен плагин `incom_gravity.amxx` со случайный изменением гравитации на сервере.
     - Параметры плагина можно посмотреть в `plugin-incom_gravity.cfg`
+- Рефакторинг способа работы с `CVAR` переменными
+    - Изменена работа в плагине `incom_camera_changer.amxx`
 
 ## [0.6.0]
 

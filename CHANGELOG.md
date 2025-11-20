@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлен плагин `incom_reset_score.amxx`. Старый `resetscore.amxx` удален
 - Изменение скина в плагине `incom_skins_knife.amxx`
     - Скин `Karambit Doppler Emerald` был заменен на другую фазу
+- Удалены оружия `WEAPON_SCOUT` `WEAPON_M3` `WEAPON_SG550` из режима со случайным оружием
 
 ## [0.6.0]
 

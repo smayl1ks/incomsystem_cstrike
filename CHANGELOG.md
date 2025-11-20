@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлен плагин `e6a_knife.amxx` для эффектных убийств с ножа.
 - Добавлено отключение плагина `mapchooser.amxx`.
     - В сборке, начиная с `0.4.0` есть модульный менеджер карт `map_manager*.amxx`
+- Добавлено отключение плагина `f_ultimate_sounds.amxx`
+- Добавлен плагин `incom_reset_score.amxx`. Старый `resetscore.amxx` удален
 
 ## [0.6.0]
 

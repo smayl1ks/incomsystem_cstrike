@@ -16,13 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Теперь можно заказывать песни через бонусное меню `/anew`. Заказ новой песни будет доступен после `amx_incom_music_request_timeout` секунд. 
     - Добавлена возможность вкл/выкл логики заказа песни: `amx_incom_music_request_enable`.
     - Добавлен словарь фраз с поддержкой английского и русского языка `incom_music.txt`
-    - Добавлен `incom_print.inc` с удобной функцией печати в чат клиентам
 - Обновления плагина `incom_respawn.amxx` (`1.4.0` -> `1.5.0`)
     - Добавлен cvar `amx_incom_respawn_random_weapons_enable`. Включает режим TeamDM со случайным оружием
     - Для работы нового `cvar` необоходимо, чтобы TeamDM был включен: `amx_incom_respawn_enable 1`
     - Добавлен новый сет оружия `Random` в меню `/weapons`
     - Добавлен словарь фраз с поддержкой английского и русского языка `incom_respawn.txt`
-    - Добавлено испольвание `incom_print.inc`
 - Добавление контрибьютеру `smayl1ks` админских прав на сервере.
 - Добавление в motd.txt раздела с контрибьютерами и гитхабом.
 - Обновление плагина `incom_camera_changer.amxx` (`1.0` -> `1.1`)
@@ -43,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Изменение скина в плагине `incom_skins_knife.amxx`
     - Скин `Karambit Doppler Emerald` был заменен на другую фазу
 - Удалены оружия `WEAPON_SCOUT` `WEAPON_M3` `WEAPON_SG550` из режима со случайным оружием
+- Добавлен include файл `incom_print.inc` с удобной функцией печати информации клиентам
+- Обновления плагина `incom_version.amxx` (`1.0` -> `1.1`)
+    - Доработка словаря `incom_version.txt` с использованием `incom_print.inc`
 
 ## [0.6.0]
 

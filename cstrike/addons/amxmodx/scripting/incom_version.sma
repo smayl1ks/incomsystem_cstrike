@@ -1,9 +1,10 @@
 #include <amxmodx>
 #include <cstrike>
 #include <cromchat>
+#include <incom_print>
 
 new const PLUGIN[]  = "Incomsystem version";
-new const VERSION[] = "1.0";
+new const VERSION[] = "1.1";
 new const AUTHOR[]  = "Tonitaga"
 
 #define KEY_ENABLE     "amx_incom_version_enable"
@@ -32,6 +33,6 @@ public ShowVersion(playerId)
 {
     if (get_pcvar_num(g_Enable))
     {
-        CC_SendMessage(playerId, "INCOMSYSTEM [&x07DEV ZONE&x01]&x01 v&x07%L&x01. By Tonitaga", playerId, "VERSION_MESSAGE");
+        IncomPrint_Client(playerId, "[%L] %L", playerId, "INCOM_VERSION", playerId, "VERSION_MESSAGE");
     }
 }

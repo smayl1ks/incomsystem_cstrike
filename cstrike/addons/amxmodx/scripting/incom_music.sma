@@ -1,5 +1,6 @@
 #include <amxmodx>
 #include <incom_print>
+#include <reapi>
 
 #define PLUGIN  "Incomsystem music"
 #define VERSION "3.2"
@@ -39,6 +40,7 @@ new const g_Sounds[][] =
     "incom/greeting_xmas_let_it_snow",
     "incom/greeting_xmas_rocking_around",
     "incom/greeting_xmas_last_christmas",
+    "incom/greeting_xmas_avaria",
 
     ///> Incomsystem [Default]
     "incom/roundend1_v2",
@@ -76,6 +78,7 @@ new const g_SoundsNames[][] =
     "Let It Snow!",
     "Rockin Around The Christmas Tree",
     "Wham! Last Christmas",
+    "Avaria - New Year",
 
     ///> Incomsystem [Default]
     "Roundend #1",
@@ -101,8 +104,8 @@ new const g_SoundsNames[][] =
 
 #define SOUND_OFFSET_GREETING      0  // g_Sounds[0]
 #define SOUND_OFFSET_GREETING_XMAS 3  // g_Sounds[3]
-#define SOUND_OFFSET_DEFAULT       7  // g_Sounds[7]
-#define SOUND_OFFSET_XMAS          16 // g_Sounds[16]
+#define SOUND_OFFSET_DEFAULT       8  // g_Sounds[8]
+#define SOUND_OFFSET_XMAS          17 // g_Sounds[17]
 
 public plugin_init() 
 { 

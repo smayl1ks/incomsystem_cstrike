@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Добавлены новые новогодние песни.
     - Игроки с флагом `ADMIN_IMMUNITY` могут в любой момент включать музыку, используя команду `say /music`, и выключать `say /stop_music`.
     - Убрана задержка перед началом песни, так как появилось мягкое начало
-    - Добавлены песни `Let It Snow!`, `Rockin’ Around the Christmas Tree`, `Last Christmas`, `Code & Counter-Strike`, `Lunch Pizza`.
+    - Добавлены песни `Let It Snow!`, `Rockin’ Around the Christmas Tree`, `Last Christmas`, `Code & Counter-Strike`, `Lunch Pizza`, `Дискотека Авария - Новогодняя`
     - Теперь можно заказывать песни через бонусное меню `/anew`. Заказ новой песни будет доступен после `amx_incom_music_request_timeout` секунд. 
     - Добавлена возможность вкл/выкл логики заказа песни: `amx_incom_music_request_enable`.
     - Добавлен словарь фраз с поддержкой английского и русского языка `incom_music.txt`

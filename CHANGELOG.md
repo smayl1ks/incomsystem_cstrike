@@ -52,6 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Добавлен плагин `incom_kill_streak_reward.amxx`. Для выдачи награды за серию убийств.
     - По умолчанию выключен.
     - Включается при включении режима `TeamDM` `amx_incom_respawn_enable 1`
+    - Добавлено уведомление о лучшей серии убийств всем игрокам
+    - Добавлена поддержка гранаты "Хилка"
 
 ## [0.6.0]
 

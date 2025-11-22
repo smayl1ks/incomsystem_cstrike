@@ -1,0 +1,7 @@
+[ru]
+INCOM_KILL_STREAM_REWARD = &x07IncomKillStreak&x01
+NEW_BEST_KILL_STREAK = &x04%s&x01 установил новый рекорд серии убийств: &x07%d&x01
+
+[en]
+INCOM_KILL_STREAM_REWARD = &x07IncomKillStreak&x01 
+NEW_BEST_KILL_STREAK = &x04%s&x01 set a new kill streak record: &x07%d&x01

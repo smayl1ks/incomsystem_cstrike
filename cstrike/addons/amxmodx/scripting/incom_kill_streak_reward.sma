@@ -3,7 +3,18 @@
 #include <string>
 #include <reapi>
 #include <file>
-#include <molotov>
+#include <incom_print>
+
+#define SUPPORT_MOLOTOV    1
+#define SUPPORT_HEALTHNADE 1
+
+#if SUPPORT_MOLOTOV == 1
+	#include <molotov>
+#endif // SUPPORT_MOLOTOV
+
+#if SUPPORT_HEALTHNADE == 1
+	#include <healthnade>
+#endif // SUPPORT_HEALTHNADE
 
 new const PLUGIN[]		= "Incomsystem Kill Streak Reward";
 new const VERSION[]		= "1.0";
@@ -13,7 +24,11 @@ new const AUTHOR[]		= "Tonitaga";
 new const CONFIG_FILE[] = "incom_kill_streak_reward.ini";
 
 ///> CVAR переменные
-new amx_incom_kill_streak_reward_enable;
+new       amx_incom_kill_streak_reward_enable;
+new Float:amx_incom_kill_streak_reward_max_health;
+
+new       maxKillStreak = 0;          ///< Наибольшая серия убийств
+new const minKillStreakForUpdate = 3; ///< Минимальная серия для начала уведомления в чат
 
 ///> Серия убийств игроков
 new g_Kills[33] = { 0, ... };
@@ -23,14 +38,16 @@ new Array:g_KillStreakRewardItems;	 ///< Массив с наградой в в�
 new Array:g_KillStreakRewardHealth;	 ///< Массив с наградой в виде "HP" за серию убийств
 new Array:g_KillStreakRewardArmor;	 ///< Массив с наградой в виде "Брони" за серию убийств
 
-///> Фиктивное наименование для гранаты "Молотов"
-new const MOLOTOV_GRENADE[] = "weapon_molotovgrenade";
+new const MOLOTOV_GRENADE[] = "weapon_molotovgrenade"; ///< Фиктивное наименование для гранаты "Молотов"
+new const HEALTH_GRENADE[]  = "weapon_healthgrenade";  ///< Фиктивное наименование для гранаты "Хилка"
 
 public plugin_init()
 {
 	register_plugin(PLUGIN, VERSION, AUTHOR);
 
 	register_event("DeathMsg", "HandleDeathEvent", "a", "1>0");
+
+	register_dictionary("incom_kill_streak_reward.txt")
 }
 
 public plugin_cfg()
@@ -42,8 +59,20 @@ public plugin_cfg()
 			.has_max = true, .max_val = 1.0,
 			.description = "Статус плагина^n\
                             0 - Отключен^n\
-                            1 - Включен"),
-		amx_incom_kill_streak_reward_enable);
+                            1 - Включен"
+		),
+		amx_incom_kill_streak_reward_enable
+	);
+
+	bind_pcvar_float(
+		create_cvar(
+			"amx_incom_kill_streak_reward_max_health", "100.0",
+			.has_min = true, .min_val = 100.0,
+			.has_max = true, .max_val = 150.0,
+			.description = "Максимальное количество HP, которое может быть после выдачи награды"
+		),
+		amx_incom_kill_streak_reward_max_health
+	);
 
 	AutoExecConfig();
 }
@@ -91,21 +120,34 @@ public HandleDeathEvent()
 		IncreaseKillStreak(killerId);
 
 		// Используем небольшую задержку для выдачи награды
-		set_task(0.25, "HandleKillStreakDelayed", killerId);
+		set_task(0.25, "HandleKillStreak", killerId);
+	}
+
+	new victimKills = GetKillStreak(victimId);
+	if (victimKills > maxKillStreak)
+	{
+		UpdateBestKillStreak(victimId, victimKills);
 	}
 
 	ResetKillStreak(victimId);
 }
 
-public HandleKillStreakDelayed(playerId)
+stock UpdateBestKillStreak(playerId, killStreak)
 {
-	if (is_user_connected(playerId) && is_user_alive(playerId))
+	if (!is_user_connected(playerId) || killStreak < minKillStreakForUpdate)
 	{
-		HandleKillStreak(playerId);
+		return
 	}
+
+	maxKillStreak = killStreak;
+
+	new name[128];
+	get_user_name(playerId, name, charsmax(name));
+
+	IncomPrint_Client(0, "[%L] %L", 0, "INCOM_KILL_STREAM_REWARD", 0, "NEW_BEST_KILL_STREAK", name, killStreak);
 }
 
-stock HandleKillStreak(playerId)
+public HandleKillStreak(playerId)
 {
 	if (!is_user_connected(playerId) || !is_user_alive(playerId))
 	{
@@ -156,12 +198,23 @@ stock GiveRewardItem(playerId, const rewardItem[])
 		giveType = GT_APPEND;
 	}
 
-	///> Если это молотов, то выдаем через API плагина молотова
+#if SUPPORT_MOLOTOV == 1
+	///> Если это "Молотов", то выдаем через API плагина <molotov>
 	if (IsMolotovGrenade(rewardItem) && !IsUserHasMolotov(playerId))
 	{
 		GiveUserMolotov(playerId);
 		return;
 	}
+#endif // SUPPORT_MOLOTOV
+
+#if SUPPORT_HEALTHNADE == 1
+	///> Если это "Хилка", то выдаем через API плагина <healthnade>
+	if (IsHealthGrenade(rewardItem) && !HealthNade_HasNade(playerId))
+	{
+		HealthNade_GiveNade(playerId);
+		return;
+	}
+#endif // SUPPORT_HEALTHNADE
 
 	rg_give_item(playerId, rewardItem, giveType);
 }
@@ -177,9 +230,10 @@ stock GiveRewardHealth(playerId, rewardHealth)
 	get_entvar(playerId, var_health, currentHealth);
 
 	new Float:newHealth = currentHealth + float(rewardHealth);
-	if (newHealth > 100.0)
+	new Float:maxHealth = amx_incom_kill_streak_reward_max_health;
+	if (newHealth > maxHealth)
 	{
-		newHealth = 100.0;
+		newHealth = maxHealth;
 	}
 
 	set_entvar(playerId, var_health, newHealth);
@@ -298,10 +352,20 @@ stock ResetKillStreak(playerId)
 stock IsGrenade(const item[])
 {
 	return (
-		equal(item, "weapon_hegrenade") || equal(item, "weapon_flashbang") || equal(item, "weapon_smokegrenade") || equal(item, MOLOTOV_GRENADE));
+		equal(item, "weapon_hegrenade") ||
+		equal(item, "weapon_flashbang") ||
+		equal(item, "weapon_smokegrenade") ||
+		equal(item, MOLOTOV_GRENADE) ||
+		equal(item, HEALTH_GRENADE)
+	);
 }
 
 stock IsMolotovGrenade(const item[])
 {
 	return equal(item, MOLOTOV_GRENADE);
+}
+
+stock IsHealthGrenade(const item[])
+{
+	return equal(item, HEALTH_GRENADE);
 }

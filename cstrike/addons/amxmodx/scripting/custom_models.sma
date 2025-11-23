@@ -234,8 +234,8 @@ public changePlayerModel(id)
 			new player_name[32];
 			get_user_name(id, player_name, charsmax(player_name));
 			//IncomPrint_Client(0, "[%L] %L", 0, "RANDOM_MODELS", 0, "YOU_GOT_MODEL", player_name, model_name);
+            setRandomModel(id);
 			client_print(0, print_chat, "[RandomModels] Игроку ^"%s^" выпала случайная модель", player_name);
-			setRandomModel(id);
 			g_CurrentRandomModelsCount++;
 		}
 	}

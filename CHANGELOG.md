@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Заменен STEAM ID и моделька у игрока `smayl1ks`
 - Добавлены скины `dobby_t` и `dobby_ct`
 - Новый режим выпадения случайных моделек (версия `1.0`). Изменен плагин `custom_models.sma` для нового режима выпадения случайных моделей
+- Добавлен файл `random_models.ini` для рандомных моделек
 
 ## [0.6.0]
 

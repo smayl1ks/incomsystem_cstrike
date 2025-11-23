@@ -8,6 +8,7 @@
 #include <amxmodx>
 #include <fakemeta>
 #include <hamsandwich>
+#include <amxmisc>
 #include <incom_print>
 
 #define PLUGIN  "Incomsystem Custom Models"
@@ -29,17 +30,18 @@ new g_szPlayerModel[33][3][64];
 new g_iStandardModelId[33]; // ID стандартной модели из g_szModels
 
 ///> Название конфигурационного файла
-// new const CONFIG_FILE[] = "random_models.ini";
+new const RANDOM_MODELS_CONFIG_FILE[] = "random_models.ini";
 
 ///> CVAR переменные
 new amx_random_models_enable; // Статус
 new amx_random_models_max_players; // Максимальное количество игроков, которые получат случайные модели
 new amx_random_models_chance; // Шанс выдачи случайной модели 
 
-new g_RandomModelCnt = 0; // Текущее количество рандомных моделек на сервере
+enum _:RandomModelPair { MODEL_T[32], MODEL_CT[32] } // Структура для хранения пары моделей
+new Array:g_PrecacheRandomModels; // Массив рандомных пар моделей
+new g_PrecacheRandomModelsCount = 0
 
-new const g_Dobby_t[] = "dobby_t";
-new const g_Dobby_ct[] = "dobby_ct";
+new g_CurrentRandomModelsCount = 0; // Текущее количество рандомных моделек на сервере
 
 public plugin_precache()
 {
@@ -73,28 +75,14 @@ public plugin_precache()
 		
 		g_iBlockMdl[i] = (!t && !ct);
 	}
+	
+	new configDir[256];
+	get_configsdir(configDir, charsmax(configDir));
 
-	new dobby_model[64];
-	
-	formatex(dobby_model, charsmax(dobby_model), "models/player/%s/%s.mdl", g_Dobby_t, g_Dobby_t);
-	if(file_exists(dobby_model)) 
-	{
-		precache_model(dobby_model);
-	}
-	else
-	{
-		log_amx("Модель Добби для террористов не найдена: %s", dobby_model);
-	}
-	
-	formatex(dobby_model, charsmax(dobby_model), "models/player/%s/%s.mdl", g_Dobby_ct, g_Dobby_ct);
-	if(file_exists(dobby_model)) 
-	{
-		precache_model(dobby_model);
-	}
-	else 
-	{
-		log_amx("Модель Добби для контр-террористов не найдена: %s", dobby_model);
-	}
+	new configFile[256];
+	format(configFile, charsmax(configFile), "%s/%s", configDir, RANDOM_MODELS_CONFIG_FILE);
+
+	PrecacheRandomModels(configFile);
 }
 
 public plugin_init()
@@ -155,7 +143,7 @@ public plugin_cfg()
 
 public event_round_start()
 {
-	g_RandomModelCnt = 0;
+	g_CurrentRandomModelsCount = 0;
 }
 
 public client_putinserver(id)
@@ -239,24 +227,31 @@ public changePlayerModel(id)
 		setDefaultModel(id);
 	}
 
-	if (amx_random_models_enable && g_RandomModelCnt < amx_random_models_max_players)
+	if (amx_random_models_enable && g_CurrentRandomModelsCount < amx_random_models_max_players)
 	{
 		if (random_num(1, 100) <= amx_random_models_chance)
 		{
 			new player_name[32];
 			get_user_name(id, player_name, charsmax(player_name));
 			//IncomPrint_Client(0, "[%L] %L", 0, "RANDOM_MODELS", 0, "YOU_GOT_MODEL", player_name, model_name);
-			client_print(0, print_chat, "[RandomModels] Игроку ^"%s^" выпала модель Добби!", player_name);
-			setDobbyModel(id);
-			g_RandomModelCnt++;
+			client_print(0, print_chat, "[RandomModels] Игроку ^"%s^" выпала случайная модель", player_name);
+			setRandomModel(id);
+			g_CurrentRandomModelsCount++;
 		}
 	}
 }
 
-public setDobbyModel(id)
+public setRandomModel(id)
 {
-	copy(g_szPlayerModel[id][1], charsmax(g_szPlayerModel[][]), g_Dobby_t);
-	copy(g_szPlayerModel[id][2], charsmax(g_szPlayerModel[][]), g_Dobby_ct);
+	if (g_PrecacheRandomModelsCount == 0)
+		return;
+	
+	new random_index = random(g_PrecacheRandomModelsCount);
+	new modelPair[RandomModelPair];
+	ArrayGetArray(g_PrecacheRandomModels, random_index, modelPair);
+	
+	copy(g_szPlayerModel[id][1], charsmax(g_szPlayerModel[][]), modelPair[MODEL_T]);
+	copy(g_szPlayerModel[id][2], charsmax(g_szPlayerModel[][]), modelPair[MODEL_CT]);
 }
 
 public applyPlayerModel(id)
@@ -322,12 +317,69 @@ bool:is_user_steam(id)
 
 public client_disconnected(id)
 {
-	if (!hasStandardModels(id) && g_RandomModelCnt > 0)
+	if (!hasStandardModels(id) && g_CurrentRandomModelsCount > 0)
 	{
-		g_RandomModelCnt--;
+		g_CurrentRandomModelsCount--;
 	}
 
 	g_szPlayerModel[id][1][0] = EOS;
 	g_szPlayerModel[id][2][0] = EOS;
 	g_iStandardModelId[id] = -1;
+}
+
+stock PrecacheRandomModels(configFile[])
+{
+	if (!file_exists(configFile))
+	{
+		server_print("[RandomModels] Configuration file doesn't exists: %s", configFile);
+		return;
+	}
+
+	new file = fopen(configFile, "rt");
+	if (!file)
+	{
+		server_print("[RandomModels] Can't open configuration file: %s", configFile);
+		return;
+	}
+
+	g_PrecacheRandomModels = ArrayCreate(RandomModelPair);
+	
+	new lineNumber = 0;
+	new line[256], model_t[32], model_ct[32];
+	new modelPair[RandomModelPair];
+
+	while (!feof(file))
+	{
+		++lineNumber;
+		fgets(file, line, charsmax(line));
+
+		// Пропускаем пустые строки и комментарии
+		trim(line);
+		if (!line[0] || line[0] == ';' || line[0] == '^n')
+			continue;
+
+		// Парсим пару моделей
+		if (parse(line, model_t, charsmax(model_t), model_ct, charsmax(model_ct)) == 2)
+		{
+			copy(modelPair[MODEL_T], charsmax(modelPair[MODEL_T]), model_t);
+			copy(modelPair[MODEL_CT], charsmax(modelPair[MODEL_CT]), model_ct);
+			
+			
+			ArrayPushArray(g_PrecacheRandomModels, modelPair);
+			g_PrecacheRandomModelsCount++;
+			
+			
+			precache_model(fmt("models/player/%s/%s.mdl", model_t, model_t));
+			precache_model(fmt("models/player/%s/%s.mdl", model_ct, model_ct));
+			
+			server_print("[RandomModels] Loaded model pair: %s (T) -> %s (CT)", model_t, model_ct);
+		}
+		else
+		{
+			server_print("[RandomModels] Parsing line error %d: %s", lineNumber, line);
+		}
+	}
+
+	fclose(file);
+	server_print("[RandomModels] Loaded %d model pairs from configuration file", g_PrecacheRandomModelsCount);
 }

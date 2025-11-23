@@ -1,5 +1,7 @@
 [ru]
-VERSION_MESSAGE = 0.6.0
+INCOM_VERSION = &x07IncomVersion&x01
+VERSION_MESSAGE = v&x040.7.0&x01. By Tonitaga
 
 [en]
-VERSION_MESSAGE = 0.6.0
+INCOM_VERSION = &x07IncomVersion&x01
+VERSION_MESSAGE = v&x040.7.0&x01. By Tonitaga

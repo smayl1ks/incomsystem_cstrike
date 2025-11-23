@@ -2,9 +2,10 @@
 #include <cstrike>
 #include <cromchat>
 #include <incom_skins>
+#include <incom_print>
 
 new const PLUGIN[]       = "Incomsystem Knife Menu";
-new const VERSION[]      = "2.1";
+new const VERSION[]      = "2.3";
 new const AUTHOR[]       = "Tonitaga"
 new const SKIN_COMMAND[] = "say /skins-knife";
 
@@ -13,8 +14,7 @@ new const Models_V[][] =
 	"models/v_knife.mdl",
 
 	// Ножи Karambit
-	"models/incom/knife/karambit/lore/v_knife.mdl",
-	"models/incom/knife/karambit/doppler_emerald/v_knife.mdl",
+	"models/incom/knife/karambit/doppler_emerald_v2/v_knife.mdl",
 	"models/incom/knife/karambit/fade/v_knife.mdl",
 
 	// Ножи Butterfly
@@ -36,7 +36,6 @@ new const ModelNames[][] =
     "Knife [DEFAULT]",
 
 	// Ножи Karambit
-	"Knife Karambit Lore",
 	"Knife Karambit Doppler Emerald",
 	"Knife Karambit Fade",
 
@@ -61,7 +60,7 @@ new Handle:g_DbHandle;
 new const TABLE_NAME[] = "knife";
 
 ///> Индекс скина по умолчанию
-new const DEFAULT_SKIN = 8; // "Knife Bayonet Chang Specialist"
+new const DEFAULT_SKIN = 1;
 
 new SkinStorage[33];
 
@@ -74,6 +73,8 @@ public plugin_init()
 	g_DbHandle = IncomSkins_GetHandle();
 
 	IncomSkins_CreateTable(g_DbHandle, TABLE_NAME);
+
+	register_dictionary("incom_skins.txt");
 }
 
 public plugin_precache() 
@@ -109,12 +110,11 @@ public IncomMenu(id)
 {
 	new menu = menu_create("\y>>>>> \rKnife skin selection menu \y<<<<<^n \dby >>\rTonitaga\d<<", "IncomCase")
 	
-	menu_additem(menu, "Knife \r[DEFAULT]^n",                "1", 0)
+	menu_additem(menu, "Knife \r[DEFAULT]^n", "1", 0)
 
 	// Ножи Karambit
-	menu_additem(menu, "\yKnife \wKarambit Lore",            "2", 0)
-	menu_additem(menu, "\yKnife \wKarambit Doppler Emerald", "3", 0)
-	menu_additem(menu, "\yKnife \wKarambit Fade",            "4", 0)
+	menu_additem(menu, "\yKnife \wKarambit Doppler Emerald", "2", 0)
+	menu_additem(menu, "\yKnife \wKarambit Fade",            "3", 0)
 
 	// Ножи Butterfly
 	menu_additem(menu, "\yKnife \wButterfly Fade",        "100", 0)
@@ -142,11 +142,8 @@ public IncomCase(id, menu, item)
 		return 1;
 	}
 
-	new nick[33];
-	get_user_name(id, nick, 32);
-
 	SkinStorage[id] = item;
-	CC_SendMessage(id, "&x03%s &x01You Chouse &x04%s&x01", nick, ModelNames[item]);
+	IncomPrint_Client(id, "[%L] %L", id, "INCOM_SKINS", id, "SKIN_SELECTED", ModelNames[item]);
 
 	IncomSkins_SaveUserSkin(g_DbHandle, TABLE_NAME, id, SkinStorage[id]);
 	IncomChangeCurrentWeapon(id);

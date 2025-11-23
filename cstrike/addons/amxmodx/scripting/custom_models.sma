@@ -348,9 +348,16 @@ stock PrecacheRandomModels(configFile[])
 		if (!line[0] || line[0] == ';' || line[0] == '^n')
 			continue;
 
+		remove_quotes(line);
+		trim(line);
+		
 		// Парсим пару моделей
 		if (parse(line, model_t, charsmax(model_t), model_ct, charsmax(model_ct)) == 2)
 		{
+
+			trim(model_t);
+			trim(model_ct);
+
 			copy(modelPair[MODEL_T], charsmax(modelPair[MODEL_T]), model_t);
 			copy(modelPair[MODEL_CT], charsmax(modelPair[MODEL_CT]), model_ct);
 			
